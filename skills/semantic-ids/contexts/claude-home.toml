@@ -1,0 +1,94 @@
+# The user-level corpus: every skill, agent, and reference file under ~/.claude.
+#
+# One context, not three, on purpose. The point of putting skills, agents, and references
+# in a single space is that they become COMPARABLE — the `whisperx` skill and the
+# `transcribe` skill land near each other, and `references/cuda/cublas-gemm.md` lands near
+# the `cuda-references` agent. Split them into separate contexts and each gets its own
+# frozen mean, i.e. its own origin, and cross-comparison becomes meaningless.
+
+name = "claude-home"
+
+embed_model = "nomic-embed-text"
+ollama = "http://127.0.0.1:11434"
+
+# The frozen mean, the index, and the float vectors. Relative to this file.
+data_dir = "../data"
+
+# Nothing here has a publication date, so all IDs carry day 0. Honest, and stable — a
+# date pulled from file mtime would churn the ID string on every touch.
+# date_field = "date"
+
+related_count = 6
+# Not a vibe. Measured on this corpus (`semantic_ids.py stats`): two documents picked at
+# random differ by 86.2 of the 172 semantic bits, which is chance — half of 172 is 86, so
+# unrelated pages sit at a coin flip exactly as they should. The 5th percentile of all
+# pairs is 68 bits. So 68 means "closer than ~95% of random pairs". Past that you are
+# ranking noise and calling the winner a recommendation.
+related_max_distance = 68
+
+# How many neighbour IDs to write into each file's frontmatter as `related_ids`.
+# Subject to related_max_distance above — a document with no neighbour inside the cutoff
+# gets an empty list rather than a nearest-of-the-noise. Set to 0 to stamp none.
+related_stamp = 2
+
+# No [tags] block. These documents already carry a hand-written `description` that is the
+# best possible one-sentence statement of what they are for — which is exactly the job a
+# tag list would be doing worse. Tags are opt-in per context; see references/contexts.md.
+
+
+# ── topic_id: the hierarchical, prefix-means-something code (scripts/topics.py) ──────
+# Additive. NEVER touches semantic_id. See references/rqvae.md.
+[topics]
+version = "v2"          # goes INSIDE the id ("v2:GmXk") — codebooks are not comparable
+                        # v1 trained on chunks only: doc vectors were 8% of the set, and it
+                        # produced a 39-doc junk drawer. v2 oversamples them. NOT comparable.
+doc_weight = 6          # oversample title+summary vectors — see topics.py cmd_train
+levels = 4              # 4 nested buckets, one base64 char each
+codebook_k = 16         # 16 codes/level. K=64 wants an external corpus of 10^5+ vectors;
+                        # on ~3k chunks it would be mostly dead codes wearing a hat.
+latent_dim = 32         # quantize small — high-dim codebooks collapse eagerly
+label_model = "qwen35-cl46-abl-9b:latest"
+
+
+[[source]]
+name = "skills"
+root = "~/.claude/skills"
+glob = "*/SKILL.md"
+frontmatter = "yaml"
+title_field = "name"
+summary_field = "description"
+stamp = true
+
+
+[[source]]
+name = "agents"
+root = "~/.claude/agents"
+glob = "*.md"
+frontmatter = "yaml"
+title_field = "name"
+summary_field = "description"
+stamp = true
+
+
+[[source]]
+name = "glossary"
+root = "~/.claude/skills/ai-dev/references/glossary"
+glob = "*.md"
+frontmatter = "none"        # title = "glossary: <first H1>", summary = first paragraph
+stamp = true
+# 37 AI/ML term definitions. They already cross-link by hand with [[wikilinks]]; the IDs
+# add the links nobody thought to write. Adding a source is SAFE — the mean is frozen, so
+# these mint against the same origin as everything else and no existing ID changes.
+
+
+[[source]]
+name = "references"
+root = "~/.claude/references"
+glob = "**/*.md"
+frontmatter = "none"        # title = "<parent dir>: <first H1>", summary = first paragraph
+stamp = true
+# These files have no frontmatter, so stamping PREPENDS a `---` block. That is fine here:
+# references/ holds hand-written, source-cited condensed notes, not verbatim upstream
+# mirrors. (The verbatim-mirror convention lives in skills/your-api-skill/references/docs/,
+# a different tree — do not stamp THOSE.) The ID travelling in the file means it survives
+# a lost index, and `grep semantic_id` finds it.

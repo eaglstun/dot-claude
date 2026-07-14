@@ -1,0 +1,57 @@
+# dot-claude
+
+The public slice of my `~/.claude` — Claude Code skills, agents, hooks,
+and output styles that are actually reusable by someone who isn't me.
+
+This branch is **generated**. It is rebuilt from scratch on every publish by
+`publish.sh`, which copies only components explicitly marked `public: true`,
+strips machine-specific paths, and refuses to push if an audit finds a
+credential, a private IP, or a personal path. My working config lives on a
+private branch that is never pushed anywhere.
+
+## Install
+
+```bash
+git clone git@github.com:eaglstun/dot-claude.git /tmp/dot-claude
+cp -R /tmp/dot-claude/skills/*  ~/.claude/skills/
+cp -R /tmp/dot-claude/agents/*  ~/.claude/agents/
+```
+
+Or cherry-pick a single skill — they're self-contained.
+
+## What's here
+
+- **`skills/ai-dev`** — Curated glossary of AI/ML development terms — architecture (transformer, attention, embeddings, late…
+- **`skills/apple-accelerate`** — Apple Accelerate framework reference — the CPU vectorized-math umbrella: BLAS/LAPACK…
+- **`skills/apple-silicon`** — Apple Silicon GPU / Metal reference for GPU-compute work in any repo — PyTorch MPS…
+- **`skills/beaglebros`** — Bring the Beagle Bros sensibility — the wisecracking, generous, demystify-the-machine…
+- **`skills/ct2-internals`** — CTranslate2 engine internals — the device/dtype-agnostic architecture below any compute…
+- **`skills/drawthings`** — Generate images locally with the Draw Things macOS app's built-in HTTP API…
+- **`skills/ffglitch`** — Glitch-art multimedia bitstream editing with FFglitch (Ramiro Polla). Edit codec…
+- **`skills/finetrainers-mps`** — Apple Silicon (MPS) lane of the user's finetrainers fork. Use when training or debugging…
+- **`skills/guitar`** — Create or format lead sheets, guitar chord charts, bass tablature, and engraved cello…
+- **`skills/headset`** — Reference for this phone-in-headset (Google Cardboard / Daydream-class) VR project — why…
+- **`skills/mermaid`** — Add and edit Mermaid diagrams (flowcharts, sequence, state, ER, class, gantt, etc.) inside any Markd…
+- **`skills/musicviz`** — Turn an audio file into a Winamp-style music-visualization video — spectrum bars,…
+- **`skills/openrouter`** — Direct calls to OpenRouter's OpenAI-compatible API for chat/text completions across…
+- **`skills/openstreetmap`** — Work with OpenStreetMap data and maps — geocode addresses ↔ coordinates (Nominatim),…
+- **`skills/pollinations`** — Generate images, videos, text-to-speech audio, music, and chat/text completions using…
+- **`skills/prisma`** — Prisma ORM reference — the schema language and data model, relations, Prisma Client…
+- **`skills/replicate`** — Run any model hosted on Replicate.com — generate videos, images, audio, music, or text…
+- **`skills/runpod`** — Deploy local Ollama models to Runpod Serverless — either baking the GGUF into a Docker…
+- **`skills/rust`** — Rust language reference — ownership/borrowing/lifetimes, traits and generics, error…
+- **`skills/semantic-ids`** — Semantic IDs — a 192-bit base64url string whose bits ARE the meaning of a document, so…
+- **`skills/together`** — Direct calls to Together AI's OpenAI-compatible API for text completions, vision,…
+- **`skills/want-me-to`** — The user's anti-hedging rule. Load the moment you are about to end a turn with a…
+- **`agents/arkit-docs`** — Pull and answer questions from Apple's ARKit / iOS developer documentation FOR THIS PROJECT'S…
+- **`agents/cuda-references`** — Pull and answer questions from NVIDIA's CUDA documentation for whatever CUDA codebase you are…
+- **`agents/gen-3d-model-maker`** — Generate a 3D model as a real asset using a hosted GENERATIVE-AI 3D API (Tripo3D / Meshy) —…
+- **`agents/ios-model-maker`** — Create a new reusable 3D model as a procedural Metal model factory in ios/KaraokeVR/Models/…
+- **`agents/metal-fx-researcher`** — Research real-time GPU effect techniques and Metal/MSL API questions FOR THIS PROJECT'S…
+- **`agents/metal-renderer`** — Implement or modify the NATIVE iOS app's hand-rolled Metal render pipeline and its MSL…
+- **`agents/swift-expert`** — General-purpose Swift language expert — write, refactor, debug, and review idiomatic modern…
+- **`agents/xformers-references`** — Pull and answer questions from the official xFormers documentation and source — Meta's PyTorch…
+
+## License
+
+MIT. Take what's useful.

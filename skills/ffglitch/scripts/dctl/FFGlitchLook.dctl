@@ -1,0 +1,80 @@
+// FFGlitchLook.dctl — glitch-adjacent looks as a Resolve Color-page effect.
+// Companion to the FFglitch pipeline: these are PIXEL effects for the grade
+// (the real bitstream glitches happen in ffedit; this stacks looks on top,
+// keyframeable, on any clip).
+//
+// Install: copy to
+//   /Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/LUT/
+// (or ~/Library/... for per-user), restart Resolve, then Color page ->
+// Effects -> DCTL -> pick FFGlitchLook.
+//
+// Every effect defaults to 0 = off; mix freely.
+//   RGB Shift    chromatic aberration, stronger toward the frame edges (px)
+//   Scanlines    darken alternating line pairs (0..1)
+//   Wave Amp     horizontal sine shear in px (Wave Freq = rows per cycle-ish)
+//   Wave Phase   scrub/keyframe this to animate the wave over time
+//   Block Size   quantize sampling to NxN blocks (fake-macroblock pixelation)
+//
+// DCTL has no frame counter and no cross-frame state — animate via keyframes
+// on these sliders (Wave Phase especially). For feedback trails or true pixel
+// sorting, use glitchgpu (../glitchgpu/) — those need state the DCTL API
+// doesn't have.
+
+DEFINE_UI_PARAMS(ca_shift, RGB Shift, DCTLUI_SLIDER_FLOAT, 0.0, 0.0, 30.0, 0.5)
+DEFINE_UI_PARAMS(scan_strength, Scanlines, DCTLUI_SLIDER_FLOAT, 0.0, 0.0, 1.0, 0.05)
+DEFINE_UI_PARAMS(wave_amp, Wave Amp, DCTLUI_SLIDER_FLOAT, 0.0, 0.0, 100.0, 1.0)
+DEFINE_UI_PARAMS(wave_freq, Wave Freq, DCTLUI_SLIDER_FLOAT, 12.0, 1.0, 100.0, 1.0)
+DEFINE_UI_PARAMS(wave_phase, Wave Phase, DCTLUI_SLIDER_FLOAT, 0.0, 0.0, 6.2832, 0.01)
+DEFINE_UI_PARAMS(block_size, Block Size, DCTLUI_SLIDER_FLOAT, 0.0, 0.0, 64.0, 1.0)
+
+__DEVICE__ int clampi(int v, int lo, int hi)
+{
+    return v < lo ? lo : (v > hi ? hi : v);
+}
+
+__DEVICE__ float3 sample_rgb(__TEXTURE__ r, __TEXTURE__ g, __TEXTURE__ b,
+                             int x, int y, int w, int h)
+{
+    x = clampi(x, 0, w - 1);
+    y = clampi(y, 0, h - 1);
+    return make_float3(_tex2D(r, x, y), _tex2D(g, x, y), _tex2D(b, x, y));
+}
+
+__DEVICE__ float3 transform(int p_Width, int p_Height, int p_X, int p_Y,
+                            __TEXTURE__ p_TexR, __TEXTURE__ p_TexG, __TEXTURE__ p_TexB)
+{
+    int sx = p_X;
+    int sy = p_Y;
+
+    // wave shear: rows slide left/right on a sine
+    if (wave_amp > 0.0f) {
+        float rowsPerCycle = _fmaxf(wave_freq, 1.0f);
+        sx += (int)(wave_amp * _sinf((float)p_Y / rowsPerCycle + wave_phase));
+    }
+
+    // block quantize: snap sampling to an NxN grid
+    if (block_size >= 1.0f) {
+        int bs = (int)block_size;
+        sx = (sx / bs) * bs + bs / 2;
+        sy = (sy / bs) * bs + bs / 2;
+    }
+
+    // chromatic aberration: R and B pull apart, growing toward the edges
+    float edge = 2.0f * ((float)p_X / (float)p_Width - 0.5f); // -1 .. 1
+    int ca = (int)(ca_shift * edge);
+
+    float3 base = sample_rgb(p_TexR, p_TexG, p_TexB, sx, sy, p_Width, p_Height);
+    float3 outc = base;
+    if (ca != 0) {
+        outc.x = sample_rgb(p_TexR, p_TexG, p_TexB, sx - ca, sy, p_Width, p_Height).x;
+        outc.z = sample_rgb(p_TexR, p_TexG, p_TexB, sx + ca, sy, p_Width, p_Height).z;
+    }
+
+    // scanlines: darken odd lines
+    if (scan_strength > 0.0f && (p_Y & 1) == 1) {
+        float k = 1.0f - scan_strength;
+        outc.x *= k; outc.y *= k; outc.z *= k;
+    }
+
+    return outc;
+}

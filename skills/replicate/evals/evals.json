@@ -1,0 +1,29 @@
+{
+  "skill_name": "replicate",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use Replicate to generate a 5-second video of a sea turtle gliding over a coral reef at sunset. Save it in ./out/.",
+      "expected_output": "A .mp4 (or similar video file) saved to ./out/. Uses a reasonable text-to-video model (seedance-2.0 by default), passes prompt + duration=5 in the input, and reports the output path.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Generate an image on Replicate of a koala holding a lightsaber, studio ghibli style. Use black-forest-labs/flux-schnell so it's cheap.",
+      "expected_output": "A .png/.webp image saved to the current directory. Uses black-forest-labs/flux-schnell via run_model.py with just a prompt input.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I have a landscape photo at ./photo.jpg and I want to turn it into a short video where the clouds move. What Replicate model should I use and what's the exact command to run it?",
+      "expected_output": "Recommends an image-to-video model (e.g., minimax/hailuo-2.3). Shows the run_model.py command passing the local path as first_frame_image (or similar), a motion-focused prompt, and explains the script will upload the local file automatically.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Can you run google/veo-3.1 on Replicate to make a 1080p 8-second clip of a jazz trio playing in a dimly lit bar?",
+      "expected_output": "Before running, notes that veo-3.1 is premium and estimates ~$0.40-$1.00 cost. Proceeds with run_model.py, input includes prompt, duration=8, aspect_ratio=16:9. Saves output locally.",
+      "files": []
+    }
+  ]
+}
