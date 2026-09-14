@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--
+  Minimal MapLibre GL JS (vector-tile) OSM map. Open directly in a browser.
+  Demonstrates: a vector basemap style, navigation controls, a marker+popup,
+  and adding queried OSM data as a GeoJSON circle layer.
+
+  NOTE on the style: this uses MapLibre's free demo style, which is intentionally
+  bare. For a real basemap, point `style` at MapTiler
+  (https://api.maptiler.com/maps/streets-v2/style.json?key=YOUR_KEY) or a
+  self-hosted Protomaps .pmtiles — see references/web-maps.md.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MapLibre OSM map</title>
+  <link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+  <script>
+    // MapLibre takes [lon, lat] — GeoJSON order.
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://demotiles.maplibre.org/style.json',
+      center: [-116.2023, 43.6150],
+      zoom: 12
+    });
+
+    map.addControl(new maplibregl.NavigationControl());
+
+    map.on('load', () => {
+      new maplibregl.Marker()
+        .setLngLat([-116.2023, 43.6150])
+        .setPopup(new maplibregl.Popup().setText('Downtown Boise'))
+        .addTo(map);
+
+      // --- Loading data from overpass.py --geojson -------------------------
+      //   overpass.py --query-file cafes.overpassql --geojson > cafes.geojson
+      //
+      // map.addSource('cafes', { type: 'geojson', data: 'cafes.geojson' });
+      // map.addLayer({
+      //   id: 'cafes', type: 'circle', source: 'cafes',
+      //   paint: { 'circle-radius': 5, 'circle-color': '#c0392b',
+      //            'circle-stroke-width': 1, 'circle-stroke-color': '#fff' }
+      // });
+    });
+  </script>
+</body>
+</html>

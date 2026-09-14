@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tidal Cycles"
+  short_description: "Compose and debug Tidal live-coded music"
+  default_prompt: "Use $tidal-cycles to write and explain a TidalCycles pattern."

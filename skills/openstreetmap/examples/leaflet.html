@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  Minimal Leaflet (raster-tile) OSM map. Open this file directly in a browser.
+  Centered on downtown Boise. Demonstrates: basemap + attribution, a marker
+  with a popup, and loading queried OSM data as GeoJSON.
+
+  NOTE on tiles: this uses OSM's standard tile server, which is for LIGHT use
+  only. For anything shipped to a real site, swap the tileLayer URL for a
+  provider (Carto/MapTiler/etc.) — see references/web-maps.md.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leaflet OSM map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Leaflet takes [lat, lon] — the opposite of GeoJSON's [lon, lat].
+    const map = L.map('map').setView([43.6150, -116.2023], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([43.6150, -116.2023]).addTo(map)
+      .bindPopup('Downtown Boise').openPopup();
+
+    // --- Loading data from overpass.py --geojson ---------------------------
+    // Generate with, e.g.:
+    //   overpass.py --query-file cafes.overpassql --geojson > cafes.geojson
+    // then uncomment:
+    //
+    // fetch('cafes.geojson')
+    //   .then(r => r.json())
+    //   .then(gj => {
+    //     const layer = L.geoJSON(gj, {
+    //       onEachFeature: (f, l) => l.bindPopup(f.properties.name || 'cafe')
+    //     }).addTo(map);
+    //     map.fitBounds(layer.getBounds());
+    //   });
+  </script>
+</body>
+</html>
